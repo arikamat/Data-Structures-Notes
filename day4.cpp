@@ -78,8 +78,8 @@ int main(){
  start of the list is head of the list and every node has the value and a pointer to the next node. the end has a value and a null pointer
 
  template<class T>
- struct Link {
-    Link(const T& x = T(), Link *next = nullptr): x(x), next(next){}
+ struct Link { T&
+    Link(const x = T(), Link *next = nullptr): x(x), next(next){}
     ~Link(){delete next;}
     T x;
     Link *next;
