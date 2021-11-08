@@ -86,7 +86,28 @@ int main(){
  }
 
  int main(){
-    Link<int> *head = new Link<int>(17);
+    Link<int> *head = if(empty()){
+            throw EmptyDeque();
+        }
+        else if(frontIdx==backIdx){
+            T a = arr[frontIdx];
+            arr[frontIdx]=NULL;
+            frontIdx=-1;
+            backIdx=-1;
+            return a;
+        }
+        else if(frontIdx==capacity()-1){
+            T a = arr[frontIdx];
+            arr[frontIdx]=NULL;
+            frontIdx=0;
+            return a;
+        }
+        else{
+            T a = arr[frontIdx];
+            arr[frontIdx] = NULL;
+            frontIdx--;
+            return a;
+        };
  #######
  Random Things
  #######
