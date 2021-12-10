@@ -371,3 +371,750 @@ Write Flip(unsigned long a, unsigned long b) that returns true w/ probability eq
 Expected number of calls to flip should be O(1)!
 
 Hint: Ignore the constraint (the constraint being the O(1) restriction) when thinking about this.
+
+
+
+# 11/9
+
+Randomize Input - Can help uniformize response
+
+## Shuffle
+
+```c++
+#include<algorithm>
+#include<random>
+void shuffle(vector<int>&a){
+    for(int i=1;i<a.size();++i){
+        std::uniform_int_distribution<int> u(0,i);
+        int j = u(gen);
+        std::swap(a[i],a[j]);
+    }
+}
+```
+
+
+
+Think about
+
+Generate every permutation (of n elements) n!
+
+​	Can do nonrecursively or recursively
+
+Generate all k element subsets of n element set $n \choose k$
+
+Generate a random k-element subset of an n-element subset
+
+​	O(k) time & space, sorted
+
+
+
+## Famous Random Algorithm - Prime Number Detection
+
+RSA needs 500-1000 digit primes
+
+#### Miller - Rabin Algorithm
+
+Fermat's little Theorem
+
+​	If p is prime, $1 \le a < p$
+
+​		$a^p \equiv a\mod{p}$
+
+​		$a^{p-1} \equiv 1\mod{p}$
+
+But if $a^{p-1} \equiv 1$, p migt not be prime.
+
+Try several as. Still not good enough.
+
+​	Carmichael NUmbers: n not prime such that $a^{n-1} \equiv 1 \mod{n}$ $ \forall \text{ a rel prime to n}$
+
+​	Ramanujan Story: 1729 is a number where you can express it as the sum of two cubes. He, however, did not realize that it is also a carmichael number
+
+
+
+Algorithm
+
+Test if p is prime: Write $p-1 = 2^kq$ where q is odd
+
+​	Choose a, 1<a<p-1 randomly.
+
+​		Ind mod p: $a^q, a^{2q}, a^{4q} ... a^{2^{q}}$
+
+if $a^{2^{k}q} \not \equiv 1 \rightarrow \text{p not prime}$
+
+else for each $j\le k$ s.t. $a^{2^jq}\equiv 1$
+
+​	either j=0 --> p is probably prime
+
+​	or j>0
+
+​		if($a^{2^{j-1}q}=-1$) -> p is probably prime
+
+​		if($a^{2^{j-1}q} \ne-1$) -> p is NOT prime
+
+
+
+If procedure returns "Probably prime" then Prob(p is prime | a) > 0.25; Events are independent for different a
+
+# 11/11
+
+Generating a Random k-set 
+
+Choose k distinct elements from {1,2,...,n}
+
+1) knnth: 1,2,3,...,n
+
+1....j | j+1
+
+a1 < a2....am
+
+Accept or reject j+1?
+
+k-m elements remain to be chosen from n-j possibilities
+
+$ {n-j} \choose {k-m}$ possible remaining subsets
+
+O(n) time
+
+O(k) space
+
+a1<a2<...ak
+
+How many of the $ {n-j} \choose {k-m}$ subsets contain x= j+1
+
+Accept w/ probability $\frac{ {n-j-1} \choose {k-m-1}}{ {n-j} \choose {k-m}} = \frac{k-m}{n-j}$
+
+```c++
+//algo to use if n/2 <= k <= n
+VI knnth_rks(int n, int k){
+    VI a(k);
+    for(int m=0,j=1;m<k&&j<=n;++j){
+        double xi = rv(); //0<=x<=1
+        if((n-j)*xi<k-m){
+            a[m++] = j+1;
+        }
+    }
+    return a;
+}
+```
+
+## Floyd's Algorithm
+
+O(k) time & space
+
+Output not in orde
+
+see picture
+
+## 11/12/2021
+
+By induction each of the  ${n-1}\choose {k-1}$ subsets is equally likely
+
+Choose $x_k$
+
+What is the probability of getting $a_1<a_2<...<a_k$
+
+Case 1: $a_k \not = n $
+
+Prob($x_k = a_1$) = $\frac{1}{n}$
+
+...
+
+Prob($x_k = a_k$) = $\frac{1}{n}$
+
+P($a_1<a_2<...<a_k$) = $\sum_{i=1}^{k} P(a_1<a_2<...<a_k | a_1< ... a_{i-1}<a_{i+1}< ... <a_k) P(a_1<...a_{i-1}<a_{i+1}) $
+
+$=\frac{k}{n} \cdot \frac{1}{{n-1} \choose {k-1}} = \frac{1}{n\choose k}$
+
+Case 2: $a_k = n $
+
+P($a_1<a_2<...<a_k$) = $\sum_{i=1}^{k} P(a_1<a_2<...<a_k | a_1< ... a_{i-1}<a_{i+1}< ... <a_k) P(a_1<...a_{i-1}<a_{i+1}) $
+
+$=\frac{k}{n} \cdot \frac{1}{{n-1} \choose {k-1}} = \frac{1}{n\choose k} = \frac{k}{n} \frac{1}{{n-1}\choose{k-1}} = \frac{1}{n\choose k}$
+
+This happened because $P(a_1<a_2<...<a_k | a_1< ... a_{i-1}<a_{i+1}< ... <a_k) $ = $P(x_k=n)$ =P(choose at random) + P(random choice = prev $x_i$) =$ \frac{1}{n}+\frac{k-1}{n} = \frac{k}{n}$
+
+
+
+Another floyd's method (or more recentnly, Brent's method)
+
+To check if a linked list cycles.
+
+Floyd's method- have a fast pointer that moves up 2 each time and a slow pointer that moves up 1 each time. Keep going until pointers fall off the end of linked list (null ptr) and return that it doesn not cycle or keep going until pointers are equal to each other in which case return that linked list cycles
+
+
+
+## Pollard Rho
+
+O($n^\frac{1}{4}$)
+
+Hypothesize that the sequence $x_i \leftarrow (({x_{i-1}})^2 -1) \mod n$ where $x_i$ is a random number between and 1 and n and it "behaves randomly"
+
+Check if $x_i, y_j$ have common factors - GCD is efficient | i is the slow pointer going from 1,2,3,4 and j is the slow pointer going 2,4,6,8,10, etc.
+
+Use Floyd (or Brent) to determine if the sequence loops
+
+​	Checks $gcd(x_i-x_{2^k},n) \not = 1,n$
+
+​		if not gcd(..) = diviser of proper
+
+
+
+loop ~ $10\cdot n^{\frac{1}{4}}$
+
+Find a nontrivial divisor of n
+
+$x_o$ = random (2,n-2)
+
+$x_i$ = $(x_{i-1}^2 +1) \mod n$   || $y_i = y_{i-1}^2 +1 \mod p$
+
+$xx_i$ (fast pointer) = $(x_{i-1}^2 +1) \mod n$
+
+$xx_i$ (fast pointer) =  $(x_{i-1}^2 +1) \mod n$
+
+if d=kgcd$(x_i-xx_i,n)$<n
+
+​	return d
+
+if d==n
+
+​	fail
+
+
+
+# 11/15/2021
+
+## Birthday Paradox
+
+Choosing m values randomly from {1,2,3,...n}, what is the probabily of a repeat > ?
+
+Probability of m distinct values 1, $\frac{n-1}{n}$, $\frac{n-2}{n}$, ... $\frac{n-m-1}{n}$
+
+Probability of repeat $1-1(1-\frac{1}{n})(1-\frac{2}{n})...(1-\frac{m-1}{n})$
+
+
+
+x>0
+
+$e^x = 1+x + \frac{x^2}{2}+ \frac{x^3}{6}...$
+
+$< 1 + x + x^2 + x^3 +...$
+
+= $\frac{1}{1-x}$
+
+### $1-x<e^{-x}$
+
+$1-\frac{k}{n} < e^{-\frac{k}{n}}$
+
+$(1-\frac{1}{n})(1-\frac{2}{n})...(1-\frac{m-1}{n}) < e^{-\frac{1}{n}}...e^{-\frac{m-1}{n}} = e^{-\frac{1}{n}\sum_{k=1}^{m-1}(k)} = e^{\frac{-m(m-1)}{2n}}$
+
+
+
+$ e^{\frac{-m(m-1)}{2n}} = 1 - \alpha$ (desired prob.)
+
+$ e^{\frac{-m(m-1)}{2n}} = 1- \alpha$
+
+$m(m-1) = 2nln(\frac{1}{1-a})$
+
+$m \approx \sqrt{2ln(\frac{1}{1-a})}\sqrt{n}$
+
+Nuber of iterations < $4\sqrt{p}$ < $4n^{\frac{1}{4}}$
+
+## Hash Tables
+
+Goal: Abstract Data Type of Set 
+
+0) Create an empty set
+1) add an element x tos et
+2) query if set contains x
+3) (optional) remove element x from set
+4) We want search to be O(1)
+
+Hash Function 
+
+Elements are positive integers
+
+Can map a seq of bits to an int
+
+$h(x) = b_{n-1}b_{n-2}...b_0 \rightarrow (\sum_{k=0}^{n-1}(b_kz^k)) \mod m$
+
+Table has m buckets. Put x in bucket h(x)
+
+What if $h(x_1) =h(x_2)$
+
+Chaining vs Open addressing
+
+| Chaining                      | Open Addressing |
+| ----------------------------- | --------------- |
+| Put x_1, x_2 into same bucket |                 |
+
+
+
+# 11/19/2021
+
+Secondary Hashing
+
+loc of ith probe = $(h_1(k) +ih_2(k)) \mod m)$
+
+We want $h_1(k) + ih_2(k) \mod m = 0,1,...,m-1$ to reach every loc:
+
+Simplest: Let $m=2^l$, $h_2(k)$ is always odd
+
+
+
+Recall Chaining:
+
+​	Successful: $1+ \frac{\alpha}{2}$
+
+​	Unsuccessful: $1+\alpha$
+
+
+
+## Open Addressing: Expected # of probes
+
+P(>0 probes) +P(>1 probe) + P(>2 probes) + ...
+
+= p(1) + p(2 probes) + p(3 probes) + ...
+
+​            +p(2 probes) + p(3 probes) + ...
+
+​                                   + p(3 probes) + ... 
+
+= 1P(1 probe) + 2P(2 probes) + 3 P(probes) +...
+
+=$\sum_{k=1}^{\infty}kP(k \text{ probes})$
+
+= E(# of probes)
+
+
+
+### What is P(>k probes)
+
+ = P(probing an occupied spot k times)
+
+$= \frac{n}{m} \cdot \frac{n-1}{m-1} \cdot \frac{n-2}{m-2} \cdot ... \cdot \frac{n-k-1}{m-k+1}$
+
+$< (\frac{n}{m})^k = \alpha^k$
+
+(# of probles) < $\sum_{k=0}^{\infty} \alpha ^k$ = $\frac{1}{1-\alpha}$
+
+Successful: E(# of probes) = $\frac{1}{n}\sum_{k=1}^n\text{\# of probes to find kth key}$
+
+$\approx \frac{1}{n}\sum_{k=1}^{n} E(\text{\# of probes when k-1 keys in table}) = \frac{1}{n}\sum_{k=1}^{n}\frac{1}{1-\frac{k-1}{m}}$
+
+=$\frac{1}{n}\sum_{k=1}^{n}\frac{m}{m-k+1} = \frac{m}{n}\sum_{k=1}^{n}\frac{1}{m-k+1}$
+
+Let $H_m=1+\frac{1}{2}+\frac{1}{3}  + ... +\frac{1}{m} \approx ln(m)$
+
+$=\frac{m}{n}(\frac{1}{m}+\frac{1}{m-1}+...+\frac{1}{m-n+1}) = \frac{m}{n}(H_m - H_{m-n}) = \frac{m}{n}(ln(m) - ln(m-n)) = \frac{m}{n}ln(\frac{m}{m-n}) = \frac{1}{\alpha}ln(\frac{1}{1-\alpha})$
+
+
+
+#### Expected Hash Performance
+
+|              | Chaining             | Open Addressing                          |
+| ------------ | -------------------- | ---------------------------------------- |
+| Unsuccessful | $1+\alpha$           | $\frac{1}{1-\alpha}$                     |
+| Successful   | $1+\frac{\alpha}{2}$ | $\frac{1}{\alpha}ln(\frac{1}{1-\alpha})$ |
+
+Open addressing can't handle deletions!
+
+# 11/22/21
+
+## Bicolor Towers of Hanoi 
+
+$h(n,t) = \text{\# of moves to transfer n disks given t towers}$
+
+h(n,t) = h(k,t) + h(n-k,t-1) where t is an upper portion of the initial tower
+
+
+
+h(n,t) = min{(2h(k,t) + h(n-k,t-1)} with the restriction that $1 \le k \le n-1$
+
+| n    | 3    | 4    |
+| ---- | ---- | ---- |
+| 1    | 1    | 1    |
+| 2    | 3    | 3    |
+| 3    | 7    | 5    |
+| 4    | 15   |      |
+| 5    | 31   |      |
+
+$2h(k,4) + h(3-k,3) = 2h(k,4) + 2^{3-k}-1$
+
+
+
+Assignment: implement this
+
+H(n,from,to,aux)
+
+h(nt,nd,aux) where nt is the number of towers, nd is the number of disks, and aux is the permutation
+
+## Other Recursion stuff
+
+Recursion is not inherently inefficient
+
+## Non-Attacking Queens
+
+```c++
+int count =0;
+int q[100];
+void search(int r){
+    if(r==n){
+        ++count;
+        return;
+    }
+    for(int c=0;c<n;c++){
+        if(safe(r,c)){
+            q[r]=c;//r is the row number
+           	search(r+1);
+        }
+    }
+}
+bool safe(int r, int c){
+    //just a method to see if a certain row and column is safe from the other queens
+}
+```
+
+13x13 --> 73712 solutions
+
+Recursive tiem 0.53 sec
+
+Nonrecursive time 0.76 sec
+
+
+Exercise to show that recursive does not necessarily mean inefficient
+
+
+
+## Misc.
+
+```c++
+bool odd(int n);
+bool even(int n){
+    if(n==0){
+        return true;
+    }
+    return odd(n-1);
+    
+}
+bool odd(int n){
+    if(n==0){
+        return false;
+    }
+    return even(n-1);
+}
+```
+
+# 11/29/2021
+
+## Dynamic Programming (DP)
+
+```c++
+//Exponential time algorithm
+int fib(int n){
+	if(n>2) return n;
+	return fib(n-1)+fib(n-2);
+}
+```
+
+Above is an exponential time algorithm for fibonacci, this is because you are repeating calcuations.
+
+​	Ex calling fib(2) for both fib(4) and fib(3) in the recursion stack for fib(n) where n>2
+
+
+
+Memoization
+
+```c++
+VI f;
+int mem_fib(int n){
+    if(f.size()>n){
+        return f[n];
+    }
+    if(n<2){
+        f.push_back(0);
+        f.push_back(1);
+        return n;
+    }
+    f.push_back(mem_fib(n-2)+mem_fib(n-1));
+    return f(n);
+}
+```
+
+On a side note, the only operators that gurantee evaluation of left arg before right are ``? && || ,``
+
+```c++
+//Simple Dynamic Programming
+f0=0;
+f1=1;
+for(int i=2;i<n;++i){
+    f2=f0+f1;
+    f0=f1;
+    f1=f2;
+}
+return f2;
+```
+
+When a problem decomposes into smaller sub-problems having the same structure as the original, we save computation by storing previously computed sub-problems.
+
+
+
+Top Down --> Recursive
+
+Bottom Up --> DP
+
+
+
+Example: m x n array of int. A path moves from top to bottom, choosing one of 3 cells below and adjacent to current cell, accumalating numner in cell. Maximize sum in one descent
+
+
+
+Exponential number of paths -> $n*2^{m-1}$ paths.
+
+​	Sub-Problem: Start at row n
+
+​		Store results in a table.
+
+​		"Base" case: start at bottom row:
+
+​			``sum[m-1][j]`` = ``a[m-1][j]``
+
+``sum[i-1][j] = a[i-1][j]+max{sum[i][j-1],sum[i][j],sum[i][j+1]}``
+
+
+
+Actual Application - Seam Carving
+
+​	Crop a photo.
+
+​	Score of path: see picture
+
+# 11/30/2021
+
+## Knapsack
+
+Choose a subset of items where each item has a value and a weight so that total weight > W and total value is maximized.
+
+
+
+## Edi Distance
+
+Given 2 strings s0, s1 what is the min cost to turn s0 into s1 w/ a sequence of "edit operations," e.g. insert 1 char, change 1 char, delete 1 char, swap 2 adjacent characters, each having a certain cost?
+
+Build a 2d table where c[i][j] is the cost of changing s0[0:i] to s1[0:j]
+
+
+
+If |s0| = m, |s1|=n, then time = O(mn) and space = O(mn)
+
+
+
+LCS: longest common subsequence
+
+This was linux's diff does
+
+
+
+# 12/2/2021
+
+## Egg Dropping
+
+Egg breaks from floor all floors above f and never breaks under f
+
+
+
+```c++
+def getPartition(int eggs){
+    return 1-x/(2x-1);
+}
+def binaryDrop(int flr,int ciel, int b){
+    
+}
+def linearDrop(int flr,int b){
+    
+}
+def initFunc(int b,int e){
+    if(e==1){
+        linearDrop(0,b);
+    }
+    else{
+        binaryDrop(0,b,b);
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 12/6/2021
+
+** Make sure all labs are submitted by Wednesday 12/8**
+
+Graphs vs Digraphs
+
+| Graphs                               | vs   | Digraphs                                          |
+| ------------------------------------ | ---- | ------------------------------------------------- |
+| Edge = {u,v}                         |      | Arc = (u,v)     ($\ne$ (v,u))                     |
+| line segment between u and v         |      | ray between u and v going from u to v             |
+| acts like a triangle with 3 vertices |      | acts like a triangle with a bunch of directionals |
+
+## Graphs
+
+A cycle: $V_i, V_{i_2},\ ...,\ V_{i_k}$       ($V_{i_1} = V_{i_k}$, all others distnict)
+
+$C_n$ denotes an n-vertex graph that is an n-cycle
+
+![graphpic](C:\Users\arikam22\AriKamat\Data Structures\LearnCpp\Notes\graphpic.jpg)
+
+## Bipartite Graph:
+
+G = (V,E) where you can write $V = V_1 \cup V_2$       $(V_1 \bigcap V_2 = \emptyset)$Such that all edges $e = \{v_1,v_2\}$ satisfy $v_1 \in V_1,$ $v_2 \in V_2$
+
+
+
+![bipartiteGraphPic](C:\Users\arikam22\AriKamat\Data Structures\LearnCpp\Notes\bipartiteGraphPic.jpg)
+
+## The Kuratowski Graph
+
+Kuratowski graph is $K_{3,3}$
+
+Theorem (More or less): A graph is planar iff it does not cointain a $\boxed{\text{subgraph}}$ homeomorphic to $K_{3,3}$ or $K_5$
+
+$O(n^5)$
+
+![karatowskiGraph](C:\Users\arikam22\AriKamat\Data Structures\LearnCpp\Notes\karatowskiGraph.jpeg)
+
+$G = (V,E)$
+
+$H = (U,F)$ a graph is a subgraph of G if $U \subset V, F \subset E$
+
+H is an induced subgraph of $G = (V,E)$ if, say $H = (U, F)$ and every edge $\{u,v\} \in E$ is an edge in F if $\{u,v\} \subset U$
+
+So, the induced subgraph on $U \subset V$ is unique
+
+![subGraph_InducedSubGraph](C:\Users\arikam22\AriKamat\Data Structures\LearnCpp\Notes\subGraph_InducedSubGraph.jpg)
+
+A component is a maximal connected subgraph
+
+![20211206_085054](C:\Users\arikam22\AriKamat\Data Structures\LearnCpp\Notes\20211206_085054.jpg)
+
+## Famous Problems
+
+Given $G = (V,E),\ u,v\in V$, 
+
+Find a path from $u$ to $v$, find the shortest path from $u$ to $v$, find all paths from $u$ to $v$, find the longest path from $u$ to $v$.
+
+A path can not repeat vertices/nodes
+
+Shortest $\rightarrow$ Fewest edges
+
+Find a Hamiltonian cycle: A cycle containing all vertices
+
+In a (Multi) graph find an Eulerian circuit: All edges occur exactly once.
+
+
+
+## Weighted Graphs
+
+$G = (V, E)$
+
+and each $\{u,v\}\in E$ has a weight $m(\{u,v\})\in \R$
+
+Minimum Weight paths & cycles.
+
+
+
+(Traveling Salesperson Person: Find a minimum weight Hamiltonian Cycle)
+
+
+
+# 12/7/2021
+
+$C_n, K_n, K_{m,n}$
+
+## Tree
+
+A connected acyclic graph
+
+![CS 551: Communication, Interconnection Tree](https://www.cs.colostate.edu/~cs551/Figures/tree.gif)
+
+## Forest
+
+An acylic graph
+
+A bunch of Trees
+
+## Digraphs
+
+A digraph w/ no cycles (a directed acyclic graph) D.A.G.
+
+![Guide: What is Directed Acyclic Graph? | by Kript Team | kriptio | Medium](https://miro.medium.com/max/1838/1*Fi1AZPZLrGf-6wM_wTSPQw.png)
+
+May be rooted or unrooted.
+
+All trees are planar
+
+
+
+Graph Coloring is an interesting problem that arises from this:
+
+A legal coloring is an assignment of a integer to each vertex such that adjacent vertices have different integers. What is the minimum number of distinct integers possible?
+
+There is a four color map theorem which states that every map may be colored w/ less thn 4 colors
+
+## Implementing Graphs
+
+Easiest: Adjacency Matrix
+
+Pro: Easyu
+
+Con: Too much space. $O(n^2)$
+
+Better: Adjacency Lists
+
+​	Vector of vertices, each vertex has a list of what is connected to it
+
+
+
+# Depth First Search
+
+```c++
+int counter = 0;
+search(Graph& g, int v){
+    g[b].pre = ++counter;
+    for(int i=0;i<g[v].nubrs.size();++i){
+        int w = g[v].nubrs[i];
+        if(g[w].pre==UNSEEN){
+			search(g,w);
+        }
+    }
+    g[v].post=++counter;
+}
+int dfs(Graph& g){
+    counter = 0;
+    int nc=0;
+    for(int v=0;v<g.size();++v){
+        if(g[v].pre==UNSEEN){
+            ++nc;
+            search(g,v);
+        }
+    }
+    return nc;
+}
+```
+
+## DFS for Digraphs (Directed Graphs)
+

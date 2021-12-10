@@ -22,7 +22,7 @@ int qs1Partition(int a[], int lo, int hi){
     int x = a[lo];
     while(lo<=hi){
         while(a[lo]<x) ++lo;
-        while)a[hi]>x) --hi;
+        while)([hi]>x) --hi;
         if(lo<= hi){
             int t= a[lo];
             a[lo++] = a[hi];
