@@ -1118,3 +1118,6 @@ int dfs(Graph& g){
 
 ## DFS for Digraphs (Directed Graphs)
 
+Forward Edge: Arc from vertex to a (non-child) descendant
+
+Cross Edge: Neither Vertex is a descendant of the others
