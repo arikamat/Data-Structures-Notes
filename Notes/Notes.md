@@ -688,7 +688,9 @@ P(>0 probes) +P(>1 probe) + P(>2 probes) + ...
 
 
 
-### What is P(>k probes)
+### What if $P(>\text{k probes})$
+
+
 
  = P(probing an occupied spot k times)
 
@@ -698,7 +700,7 @@ $< (\frac{n}{m})^k = \alpha^k$
 
 (# of probles) < $\sum_{k=0}^{\infty} \alpha ^k$ = $\frac{1}{1-\alpha}$
 
-Successful: E(# of probes) = $\frac{1}{n}\sum_{k=1}^n\text{\# of probes to find kth key}$
+Successful: E(# of pr	obes) = $\frac{1}{n}\sum_{k=1}^n\text{\# of probes to find kth key}$
 
 $\approx \frac{1}{n}\sum_{k=1}^{n} E(\text{\# of probes when k-1 keys in table}) = \frac{1}{n}\sum_{k=1}^{n}\frac{1}{1-\frac{k-1}{m}}$
 
@@ -1121,3 +1123,243 @@ int dfs(Graph& g){
 Forward Edge: Arc from vertex to a (non-child) descendant
 
 Cross Edge: Neither Vertex is a descendant of the others
+
+## DAG: Direct Acyclic Graph:
+
+Topological Ordering:
+
+​	G=(V,E)
+
+$V=\{v_1,...,v_n\}$
+
+$(v_1,...,v_n)$ is a top ord if there are no arcs from $V_{i_{j}}$ to $V_{i_{k}}$ whereever j>k
+
+
+
+# Knnth's Top ord Alg
+
+Input: List of Arcs:
+
+$(V_i, V_j)$ 
+
+.
+
+.
+
+.
+
+Determine out-degree of each vertex (O(E))
+
+​	Put all vertices w/ out-deg=0 at right end of list
+
+​	Decrement out degree of all vertices that have arcs to re
+
+# 12/13/2021
+
+O(V+E) = "Linear Time"
+
+(Aside planarity: O(V+E) = O(V) because of Euler's Formula v-e+f = 2
+
+So for a planar graph $e \le 3v -6$
+
+## 2nd algorithm for Top Sort
+
+Arrange the vertices in reverse finishing time
+
+PF: Let $(u,v) \in E$. Must show Ft(u)>Ft(v)
+
+Ft = finishing time
+
+Case a) u is discovered before v 
+
+​	So, recursive call of dfs for v occurs within recursive call for u, so ft(v) < ft(u).
+
+Case b): v discovered first
+
+​	The dfs call for v occurs before that of u. This call ends when all vertices reachable from v have been visited. But u cannot be reachable from v since the graph is acyclic. So call to dfs of v finishes before u starts and ft(v)<ft(u)
+
+## Strong Components (Just for Digraphs)
+
+u,v are in the same strong component if there are paths both from u to v and from v to u 
+
+
+
+If there is an arc from Strong Component A to Strong Component B, there is no arc from SC B to A.
+
+	- Because in that case, there would be a cycle
+
+
+
+Given a digraph G, form a new digraph $G^\text{sec}$ whose vertices are the strong components of G, and such that there is an arc (A,B) iff there is an arc $(u,v) \in G$ where $u \in A$, $v \in B$. Then $G^{\text{sec}}$ is a DAG
+
+## Kosaraju's Algorithm
+
+Let G be a digraph
+
+1) Do DFS on G, recording $Ft(v), \forall v \in G$
+2) Form $G^T$ (all arcs are reversed). (some advanced topics transpose thing happened here)
+   1) Do a DFS on $G^T$ but whenever there is a choice of next vertex, choose one with the higher finishing time
+3) Then each set of verices visited
+
+# 2-Satisfiability
+
+## Logic (Propositional)
+
+~ not
+
+$\wedge$ and
+
+$\lor$ or
+
+$\rightarrow$ implies
+
+Given a logical Sentence:
+
+​	Var
+
+​	~s1
+
+​	s1 $\or$ s2
+
+​	s1 $\and$ s2
+
+​	s1 $\rightarrow$ s2
+
+It is easy (given values of vars) to determine if valid
+
+it seems difficult to determine if there is a model (an assignment of truth values to all occuring vars) that satisfies the sentence
+
+## Conjunctive Normal Form
+
+Can convert any logical sentence to CNF:
+
+# 12/16/2021
+
+2-satisfiable if and only if Strong Component contains both p and ~p
+
+## Biconnectivity
+
+A graph is biconnected if no singe vertex deletion will disconnect the graph 	 
+
+(It follows that no single edge deletion disconnects the graph)
+
+
+
+A vertex whose deletion disconnects is an arituculation point or cut vertex.
+
+An edge whose deletion ... is a bridge
+
+ 
+
+In general a graph is k-connected if the minimum number of vertices removal that disconnects is k.
+
+
+
+A maximal subgraph that is 2-connected is a block.
+
+An equivalent relation on edges : 2 edges are equivalent if they belong to a common cycle
+
+Can partition edges into the blocks of the graph
+
+
+
+
+
+If v has a child u such that the subtree rooted at u has no back-edge to any vertex higher than v, then v is an articulation point
+
+
+
+What is the highest vertex connect by a backedge from a vertex in the subtree rooted at u?
+
+
+
+```c++
+visit(v){
+    v.d = ++time;//discovery time (pre-order)
+    //put some code here
+    //process unvisited numbers
+    v.F = ++time; //finishing time (post-order)
+}
+```
+
+# 12/17/2021
+
+## Union-Find (Online connectivity)
+
+Add edges , keep track of the current number of components 
+
+id(v)
+
+join(v,w)
+
+v,w are conected (at present) iff id(v) == id(w)
+
+```c++
+int id(int v){
+    while(v!=dad[v]){
+        v = dad[v];
+    }
+    return v;
+}
+bool connected(int n, int v){
+    return id(u)==id(v);
+}
+int join(int v, int w){
+    t = id(v);
+    s=id(w);
+    if(s!=t){
+        dad[s]=t;
+        wt[t]+=wt[s];
+        return t;
+    }
+    else{
+        dad[t]=s;
+        wt[s]+=wt[t];
+        return s;
+    }
+
+    
+}
+```
+
+Wit eight balancing,
+
+# 12/20/2021
+
+File I/O: Standard I/O cin/cout printf/scan (Dr. Nevard will redirect input)
+
+Note: If path length = # of edges, then BFS finds lengths of paths starting at $V_0$
+
+BFS: Use a queue. Put $V_0$ on queue
+
+O(V+E)
+
+
+
+## Weighted Graphs
+
+Edge = {from, to, weight}
+
+from, to $\in$ V
+
+wt $\in \R$ 
+
+The length of a path = sum of weights of edges in path.
+
+1) Given u, v $\in$ , find length of shortest path between u and v
+2) Given u $\in$ V, find lengths of shortest paths to all vertices
+3) Find lengths of all shortest paths. $O(V^3)$
+
+Some path finding is harder if negative weights
+
+## Minimum Spanning Tree (MST)
+
+A tree that is a subgraph containing all vertices of the graph
+
+In a weigthed graph, an MST is an ST the sum of whose weights is minimum
+
+Ex. An impovershed town watns to repare some roads. Find the minimum sot so that you can travel between any 2 locations on repaved roads
+
+## Bellman-Ford
+
+Given $V_0$, weighted graph G, negative weights allowed, find shortest paths to all other vertices, & determine if any negative cycles
