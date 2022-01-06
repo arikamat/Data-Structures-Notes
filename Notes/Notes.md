@@ -1363,3 +1363,177 @@ Ex. An impovershed town watns to repare some roads. Find the minimum sot so that
 ## Bellman-Ford
 
 Given $V_0$, weighted graph G, negative weights allowed, find shortest paths to all other vertices, & determine if any negative cycles
+
+# 12/21/2021
+
+Bellman-Ford
+
+```c++
+if(dad[v1] != v2 && d2>d1+wt(v1,v2))
+```
+
+O(VE)
+
+for(i=0;iM|v|-1; ++i)
+
+// relax all edges
+
+Inductively, at kth relaxation of all edges have found all sortest paths from v0 having $\le$ k edges
+
+SUbpaths of shortest paths are shortest paths too
+
+## Dijkstra's algo
+
+("Go tos are considered harmful")
+
+Does not work with negative weights
+
+Find all shortest paths starting at $V_o$
+
+Let $d[v_o]=0$, $d[v]=\infty$ $\forall v \ne v_o$
+
+S = $\{V_0, ..., V_{n-1}\}$
+
+s[v] = true or false
+
+n variant: d[v] $\ge$ actual length of shortest path from v0 to v
+
+for(i =1; i<|v|;++i)P
+
+$i_0 = \text{argmin}\{d[v_i]: v_i \in S\}$ O(lg|V|)
+
+Remove $V_{i_{o}}$ from S
+
+RElax all unfinished numbers of $V_{i_{o}}\cdot O(|V|)$
+
+for each number $V_{i_{o}}$ $\sum{O(lg(v))deg(V_{i_{o}}})$
+
+
+
+### 2 implementations
+
+Dense/ Sparse
+
+Dense -> O(M^2)
+
+# 1/3/2022
+
+## Recall: Bellman Ford
+
+Shortest path w/ unrestricted edge weights
+
+Can detect negative cycles.
+
+O(EV)
+
+## Floyd-Warshall
+
+O(V^3) - Finds all distances
+
+If path(AC) is shortest and B is on that path, path(AB) and path(BC) must be shortest paths
+
+```c++
+
+for(int k=0;k<n;++k){
+	//Find shortest path from i to j through k
+	for(int i=0;i<n;++i){
+		for(int j=0; j<n;++j)
+			if(d[i][k]+d[k][j]<d[i][j]){
+				d[i][j]=d[i][k]+d[k][j];
+				p[i][j]=k;
+			}
+		}
+	}
+}
+```
+
+Here, $d[i][j] =\left\{ \begin{array}{ll}
+      0 & \{i,j\} \not\in E \\
+      wt[i][j] & \text{else} \\
+\end{array}\right\}$
+
+Can be adapted to find transitive closure of a graph; edge between i, j iff every path path between i,j
+
+## Dijkstra's Algorithm
+
+All weights $\ge$ 0
+
+Finds shortest paths from a fixed vertex $v_0$ to all other vertices 
+
+initialize $d(v) = \left\{ \begin{array}{ll}
+      0 & v=v_0\\
+      \infty & v\ne v_0 \\
+\end{array}\right\}$
+
+```c++
+for(int i=1;i<n; ++i){
+    //Find minimal d(v) for "unfinished" v
+    	//have a boolean done[] to mark if the vertices are done
+	//Look at all the vertices that are not done and take the index of the smallest one
+    //d(v) isn't a programming funtion; it's a math function
+    	//you would probably store it in a Struct vertex{... double d; ...} and call g[v].d
+	//for each neighbor vk:
+       //if (d(w)>d(vk)+wt(vk,w)){
+//    		d[w]=d[vk]+wt(vk,w);
+//     		p(w) = k;
+//
+}
+}
+    
+}
+```
+
+Dense Dijkstra: O(v^2)
+
+Sparse Dijkstra:
+
+​	Use a heap-based priority-queue
+
+​		Keeip all unfinished vertices v with corr d(v) in Priority Queue
+
+​		O(lg V)
+
+​	O(V lgv +Elgv) = O(Elgv)
+
+# 1/4/22
+
+## Example Dijkstra Algo
+
+Bessie has gone into the swimming pool construction business. Each pool her team designs in an ``m x n`` rectangular grid. To enhance the artistry, she specifies the height of the bottom of the pool on each 1x1 square of the rectangle, ``h[i][j]``, $0 \le i <m$, $0\le j <n$
+
+Water is poured into/onto the pool until equilibrium is reached. Bessie needs to know how much water is in the pool. Determine this
+
+Hint: Use dijkstra's algorithm and interpret "shortest" in a novel way!
+
+Attempt to get a time complexity of O(mn * lg(mn))
+
+# 1/6/22
+
+Kruskal's Algorithm
+
+$E\alpha(E)$
+
+Recall $\alpha(E)<4$ ALWAYS
+
+1. Sort edges by increasing weight O(ElgE)
+2. Add edges in order, skipping edges that would create a cycle (using union-find)
+   1. Stop when V-1 edges have been added
+
+## Weighted Graphs
+
+### MST
+
+Prim - (E+V)lgv
+
+Kruskal O(ElgE)
+
+### Shortest Path
+
+BFS (if all weights are equal)
+
+Bellman-Ford O(VE) (neg edges)
+
+Floyd-Warshall O(V^3) (all paths)
+
+Dijkstra
+
